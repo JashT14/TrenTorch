@@ -253,8 +253,7 @@ def selftest_parser() -> bool:
     ok = found.get("octocat") == ("Octo Cat", "Builds things.")
     if not ok:
         print(
-            f"selftest_parser FAILED: parse_existing found {found!r}, "
-            "expected the real name/bio preserved",
+            f"selftest_parser FAILED: parse_existing found {found!r}, expected the real name/bio preserved",
             file=sys.stderr,
         )
     return ok
