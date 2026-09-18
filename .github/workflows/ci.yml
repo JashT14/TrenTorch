@@ -2,9 +2,11 @@ name: CI
 
 # Lint, type-check, test, and build -- gated behind a path filter so a
 # docs-only or workflow-only PR doesn't pay for a full Node install +
-# build. Playwright e2e deliberately isn't part of this workflow at all
-# (see e2e.yml): it's the slowest test category by far, so it runs
-# nightly/on-demand instead of on every PR.
+# build. Golden-path smoke tests run static HTML checks against the real
+# build/ output instead of a real browser (see
+# TrenTorch_Web/e2e/golden-paths.spec.ts for why), so they're cheap
+# enough to just run inline below rather than needing a separate
+# nightly/on-demand workflow.
 
 on:
   push:
