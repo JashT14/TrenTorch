@@ -47,7 +47,7 @@
 		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/svelte": "^5.4.2",
 		"@types/katex": "^0.16.8",
-		"@types/node": "^24",
+		"@types/node": "^26",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",
@@ -78,5 +78,8 @@
 		"marked": "^18.0.13",
 		"marked-katex-extension": "^5.1.12",
 		"tailwind-merge": "^3.7.0"
+	},
+	"overrides": {
+		"cookie": "^0.7.0"
 	}
 }
