@@ -52,7 +52,7 @@ tren setup
 tren
 ```
 
-`tren setup` adds `tren` to your PATH — after that, every terminal just needs `tren`, no activating first.
+`tren setup` adds `tren` to your PATH. After that, every terminal just needs `tren`, no activating first.
 
 ### Web (browser)
 
@@ -75,13 +75,13 @@ npm run build   # production build
 
 ## Why TrenTorch?
 
-Most people learn ML frameworks by importing them. We wanted to know how they actually work, so we built one — then kept going past "good enough."
+Most people learn ML frameworks by importing them. We wanted to know how they actually work, so we built one, then kept going past "good enough."
 
 TinyTorch teaches the fundamentals. TrenTorch takes the same foundation and pushes it further: cleaner internals, a harder curriculum, and an implementation extended past the original spec wherever it made sense.
 
-- **Small enough to read in one sitting** — every operation traces back to raw NumPy
-- **Real enough to matter** — the same architecture production frameworks run on
-- **Fully ours** — rebuilt and hardened from scratch, not a wrapper around an existing library
+- **Small enough to read in one sitting**: every operation traces back to raw NumPy
+- **Real enough to matter**: the same architecture production frameworks run on
+- **Fully ours**: rebuilt and hardened from scratch, not a wrapper around an existing library
 
 No black boxes. No `import torch`. Just the machinery, exposed.
 
@@ -91,13 +91,13 @@ No black boxes. No `import torch`. Just the machinery, exposed.
 
 A complete ML framework, in four stages:
 
-**Vision** — Conv2d, pooling, and CNNs from scratch, evaluated on real benchmarks.
+**Vision**: Conv2d, pooling, and CNNs from scratch, evaluated on real benchmarks.
 
-**NLP** — Tokenization, embeddings, and multi-head attention, hand-rolled from first principles.
+**NLP**: Tokenization, embeddings, and multi-head attention, hand-rolled from first principles.
 
-**LLM** — Full GPT-style transformer blocks: real self-attention, real generation, not a wrapper.
+**LLM**: Full GPT-style transformer blocks: real self-attention, real generation, not a wrapper.
 
-**Inference & Optimization** — Profiling, quantization, KV-cache, and the optimizers (SGD, Adam, AdamW, Lion, Muon) that make it all run at production speed.
+**Inference & Optimization**: Profiling, quantization, KV-cache, and the optimizers (SGD, Adam, AdamW, Lion, Muon) that make it all run at production speed.
 
 Zero PyTorch. Zero TensorFlow. Every line is yours.
 
@@ -142,7 +142,7 @@ As you progress, you unlock recreations of landmark ML results, run on your own 
 | 2017 | Transformer Era | Language generation with self-attention |
 | 2018+ | MLPerf | Production-grade optimization |
 
-Not toy demos — real, historically significant results, on a framework you wrote yourself.
+Not toy demos: real, historically significant results, on a framework you wrote yourself.
 
 ---
 
@@ -161,10 +161,10 @@ model.fit(X, y)  # everything happens somewhere else
 ```
 
 **Why build your own framework?**
-- **Deep understanding** — you know exactly what `loss.backward()` does, because you wrote it
-- **Systems thinking** — memory, compute, and scaling stop being abstractions
-- **Debugging at any depth** — fix problems at the model level or the tensor level
-- **Production instincts** — the same patterns real ML systems run on
+- **Deep understanding**: you know exactly what `loss.backward()` does, because you wrote it
+- **Systems thinking**: memory, compute, and scaling stop being abstractions
+- **Debugging at any depth**: fix problems at the model level or the tensor level
+- **Production instincts**: the same patterns real ML systems run on
 
 ---
 
@@ -214,9 +214,9 @@ CLI workflow: `TrenTorch_CLI/data/src/*.py` → `TrenTorch_CLI/data/modules/*.ip
 TrenTorch is our implementation, built on the curriculum and foundation of [TinyTorch](https://mlsysbook.ai/tinytorch), created by [Prof. Vijay Janapa Reddi](https://vijay.seas.harvard.edu) and the [ML Systems Book](https://mlsysbook.ai) community at Harvard University.
 
 Related educational frameworks worth knowing:
-- [tinygrad](https://github.com/tinygrad/tinygrad) — George Hotz's minimalist framework
-- [micrograd](https://github.com/karpathy/micrograd) — Andrej Karpathy's tiny autograd
-- [MiniTorch](https://minitorch.github.io/) — Cornell's educational framework
+- [tinygrad](https://github.com/tinygrad/tinygrad): George Hotz's minimalist framework
+- [micrograd](https://github.com/karpathy/micrograd): Andrej Karpathy's tiny autograd
+- [MiniTorch](https://minitorch.github.io/): Cornell's educational framework
 
 ---
 
