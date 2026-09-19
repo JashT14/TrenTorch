@@ -8,7 +8,6 @@ Ensures:
 4. Non-zero exit codes propagate correctly to the calling shell.
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
