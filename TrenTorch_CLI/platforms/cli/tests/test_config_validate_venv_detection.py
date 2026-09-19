@@ -147,4 +147,3 @@ def test_validate_default_venv_path_without_attribute_error(tmp_path, monkeypatc
     issues = config.validate()
 
     assert any(_VENV_ISSUE_SUBSTRING in i for i in issues)
-
