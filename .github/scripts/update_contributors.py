@@ -134,6 +134,28 @@ def gh_json(args):
     return json.loads(result.stdout)
 
 
+# A person credited as `Co-authored-by:` on a commit in a merged PR earns a
+# spot the same way the PR's own author does -- someone who found a bug or
+# wrote the fix that got folded into someone else's PR shouldn't need a
+# separate PR of their own just to show up here. Only the standard
+# GitHub-generated noreply address (`id+login@users.noreply.github.com`) is
+# resolved, since that's the only form that maps back to a login without an
+# extra API call per email address.
+CO_AUTHOR_RE = re.compile(
+    r"^Co-authored-by:\s*.*?<\d+\+([^@]+)@users\.noreply\.github\.com>",
+    re.MULTILINE,
+)
+
+
+def fetch_co_author_logins(pr_number: int) -> set[str]:
+    commits = gh_json(["pr", "view", str(pr_number), "--repo", REPO, "--json", "commits"])
+    logins = set()
+    for commit in commits.get("commits", []):
+        body = commit.get("messageBody", "") or ""
+        logins.update(CO_AUTHOR_RE.findall(body))
+    return logins
+
+
 # A PR earns its author contributor credit only once it's actually been
 # accepted. `gh pr list --state all` returns OPEN, MERGED, and CLOSED
 # (closed WITHOUT merging -- i.e. rejected) alike; treating "any state" or
@@ -149,7 +171,7 @@ def counts_toward_contribution(pr: dict) -> bool:
 
 def fetch_counts():
     prs = gh_json(
-        ["pr", "list", "--repo", REPO, "--state", "all", "--limit", "1000", "--json", "author,state"]
+        ["pr", "list", "--repo", REPO, "--state", "all", "--limit", "1000", "--json", "number,author,state"]
     )
     issues = gh_json(
         ["issue", "list", "--repo", REPO, "--state", "all", "--limit", "1000", "--json", "author"]
@@ -165,6 +187,9 @@ def fetch_counts():
             continue
         login = pr["author"]["login"]
         bucket(login)["prs"] += 1
+        for co_login in fetch_co_author_logins(pr["number"]):
+            if co_login != login:
+                bucket(co_login)["prs"] += 1
 
     for issue in issues:
         if issue["author"].get("is_bot"):
@@ -270,9 +295,10 @@ TEAM_INTRO = (
 )
 
 CONTRIBUTORS_INTRO = (
-    "Everyone else who has had a PR merged. Want to show up here? Get a PR merged: the "
-    "first-contribution bot will say hello on your first PR, and this grid updates automatically "
-    "after it merges. A closed-without-merging PR doesn't count, and neither does an issue on its own.\n\n"
+    "Everyone else who has had a PR merged, or is credited as a `Co-authored-by:` on one. Want to show "
+    "up here? Get a PR merged, or get credited as a co-author on someone else's: the first-contribution "
+    "bot will say hello on your first PR, and this grid updates automatically after it merges. A "
+    "closed-without-merging PR doesn't count, and neither does an issue on its own.\n\n"
 )
 
 
@@ -345,6 +371,23 @@ def selftest_pr_filtering() -> bool:
     return ok
 
 
+def selftest_co_author_regex() -> bool:
+    """A `Co-authored-by:` trailer with the standard GitHub noreply address
+    resolves to the login embedded in it; any other address form (can't be
+    mapped to a login without a network call) is ignored rather than
+    guessed at."""
+    body = (
+        "Fixes the thing.\n\n"
+        "Co-authored-by: Shreya <293188706+Shreyacodess20@users.noreply.github.com>\n"
+        "Co-authored-by: Someone Else <someone@example.com>\n"
+    )
+    found = set(CO_AUTHOR_RE.findall(body))
+    ok = found == {"Shreyacodess20"}
+    if not ok:
+        print(f"selftest_co_author_regex FAILED: got {found!r}, expected {{'Shreyacodess20'}}", file=sys.stderr)
+    return ok
+
+
 def selftest_only_pr_authors() -> bool:
     """Someone who only raised issues gets no grid spot. Someone with a
     merged PR keeps theirs, and their issue count is kept."""
@@ -391,7 +434,13 @@ def selftest() -> bool:
     real -- both checks guard against a bug that has already shipped
     once, silently, and only got caught by a human noticing bad output
     in README.md after the fact."""
-    results = [selftest_parser(), selftest_pr_filtering(), selftest_only_pr_authors(), selftest_split()]
+    results = [
+        selftest_parser(),
+        selftest_pr_filtering(),
+        selftest_co_author_regex(),
+        selftest_only_pr_authors(),
+        selftest_split(),
+    ]
     ok = all(results)
     print("selftest passed" if ok else "selftest FAILED", file=sys.stderr if not ok else sys.stdout)
     return ok
