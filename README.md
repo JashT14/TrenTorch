@@ -215,7 +215,7 @@ The maintainers. Counts are recomputed whenever a PR merges, from real issue/PR 
         <br />
         <sub>IIT Guwahati, Debugs autograd for fun, ships before sunrise.</sub>
         <br />
-        <sub>Issues: 18 &middot; PRs: 189</sub>
+        <sub>Issues: 18 &middot; PRs: 190</sub>
       </td>
       <td align="center" valign="top" width="25.0%">
         <a href="https://github.com/maanas1234"><img src="https://avatars.githubusercontent.com/maanas1234?v=4" class="contributor-avatar" width="80px;" alt="maanas1234"/></a>
@@ -237,7 +237,7 @@ The maintainers. Counts are recomputed whenever a PR merges, from real issue/PR 
         <br />
         <sub>Reducing CPU stalls, one commit at a time.</sub>
         <br />
-        <sub>Issues: 0 &middot; PRs: 8</sub>
+        <sub>Issues: 0 &middot; PRs: 10</sub>
       </td>
       <td align="center" valign="top" width="25.0%">
         <a href="https://github.com/ShivtejG236"><img src="https://avatars.githubusercontent.com/ShivtejG236?v=4" class="contributor-avatar" width="80px;" alt="Shivtej Gaikwad"/></a>
@@ -336,10 +336,6 @@ Everyone else who has had a PR merged, or is credited as a `Co-authored-by:` on 
 </table>
 
 </details>
-
-## Bug & Security Reports
-
-Thanks to [@Shreyacodess20](https://github.com/Shreyacodess20) for reporting a POTD rating bug and helping us improve TrenTorch. Found a bug? Everyone is welcome to report it by [opening an issue](https://github.com/TrenTorch/TrenTorch/issues). For security vulnerabilities, please use the private process in our [Security Policy](SECURITY.md) instead of posting publicly.
 
 ---
 
