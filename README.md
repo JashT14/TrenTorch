@@ -337,6 +337,10 @@ Everyone else who has had a PR merged, or is credited as a `Co-authored-by:` on 
 
 </details>
 
+## Bug & Security Reports
+
+Thanks to [@Shreyacodess20](https://github.com/Shreyacodess20) for reporting a POTD rating bug and helping us improve TrenTorch. Found a bug? Everyone is welcome to report it by [opening an issue](https://github.com/TrenTorch/TrenTorch/issues). For security vulnerabilities, please use the private process in our [Security Policy](SECURITY.md) instead of posting publicly.
+
 ---
 
 ## Credit
