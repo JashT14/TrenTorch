@@ -63,7 +63,9 @@ class ConvertCommand(BaseCommand):
             )
         else:
             module_dirs = []
-            for d in src_dir.iterdir():
+            # sorted() makes "first match wins" deterministic: all three matchers
+            # are many-to-one, and iterdir() order is filesystem-dependent.
+            for d in sorted(src_dir.iterdir()):
                 if d.is_dir() and (
                     d.name == args.module
                     or d.name.startswith(f"{args.module}_")
