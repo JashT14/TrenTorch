@@ -311,37 +311,38 @@ def check_notebook_solved(notebook_path: Path) -> tuple[bool, list[str]]:
 
 
 def _resolve_jupytext_path(venv_path: Path, console) -> str:
+    import shutil
     import sys
 
-    from ..core.virtual_env_manager import get_venv_bin_dir
+    from ..core.virtual_env_manager import get_venv_bin_dir, is_venv_active
 
-    jupytext_path = "jupytext"
-    # pip's console-script wrapper is jupytext.exe on Windows, a plain
-    # extensionless jupytext everywhere else -- checking only the bare
-    # name meant venv_jupytext.exists() was always False on Windows, so
-    # this always silently fell through to the PATH-dependent "system
-    # jupytext" branch below, even with a perfectly good venv install.
-    # Harmless when the venv happens to be on PATH too (a normal
-    # `source .venv/Scripts/activate` shell, or CI, which activates
-    # venvs onto PATH as part of its own setup), but a local shell that
-    # invokes the venv's python.exe directly without activating it (its
-    # PATH was never touched) got a wrong "Jupytext not found" instead
-    # of using the jupytext already sitting right next to that python.exe.
-    bin_dir = get_venv_bin_dir(venv_path)
-    venv_jupytext = bin_dir / ("jupytext.exe" if sys.platform == "win32" else "jupytext")
+    exe_name = "jupytext.exe" if sys.platform == "win32" else "jupytext"
+    candidate_venvs = []
+    if venv_path:
+        candidate_venvs.append(Path(venv_path))
+    if is_venv_active():
+        active_prefix = Path(sys.prefix)
+        if active_prefix not in candidate_venvs:
+            candidate_venvs.append(active_prefix)
 
-    if venv_jupytext.exists():
-        test_result = subprocess.run(
-            [str(venv_jupytext), "--version"],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-        )
-        if test_result.returncode == 0:
-            console.print(f"[dim]🔧 Using venv jupytext: {venv_jupytext}[/dim]")
-            return str(venv_jupytext)
-        console.print("[dim]⚠️  Venv jupytext has issues, falling back to system[/dim]")
+    for vpath in candidate_venvs:
+        bin_dir = get_venv_bin_dir(vpath)
+        venv_jupytext = bin_dir / exe_name
+        if venv_jupytext.exists():
+            test_result = subprocess.run(
+                [str(venv_jupytext), "--version"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            if test_result.returncode == 0:
+                console.print(f"[dim]🔧 Using venv jupytext: {venv_jupytext}[/dim]")
+                return str(venv_jupytext)
+            console.print("[dim]⚠️  Venv jupytext has issues, falling back to system[/dim]")
+
+    which_jupytext = shutil.which("jupytext") or shutil.which("jupytext.exe")
+    jupytext_path = which_jupytext if which_jupytext else "jupytext"
     console.print(f"[dim]🔧 Using system jupytext: {jupytext_path}[/dim]")
     return jupytext_path
 

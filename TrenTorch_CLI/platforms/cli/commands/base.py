@@ -53,8 +53,11 @@ class BaseCommand(ABC):
 
     @property
     def venv_path(self) -> Path:
-        """Return the command name."""
-        return get_venv_path()
+        """Return the venv path for the command."""
+        try:
+            return get_venv_path(getattr(self.config, "project_root", None))
+        except TypeError:
+            return get_venv_path()
 
     @property
     @abstractmethod

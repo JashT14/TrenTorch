@@ -49,13 +49,22 @@ def is_venv_active() -> bool:
     return sys.prefix != sys.base_prefix or hasattr(sys, "real_prefix")
 
 
-def get_venv_path() -> Path:
+def get_venv_path(project_root: Path | None = None) -> Path:
     """
     Fetch venv in case users have a custom path
     """
-    # print(f"running this from {os.getcwd()}")  # Debug output - commented out for clean CLI
     if "VENV_PATH" in os.environ:
         return Path(os.environ["VENV_PATH"]).expanduser().resolve()
+
+    if project_root is not None:
+        cfg_path = project_root / CONFIG_FILE
+        if cfg_path.exists():
+            try:
+                with open(cfg_path, encoding="utf-8") as f:
+                    cfg = json.load(f)
+                return (project_root / cfg.get("venv_path", DEFAULT_VENV)).resolve()
+            except Exception:
+                pass
 
     if Path(CONFIG_FILE).exists():
         try:
@@ -65,4 +74,21 @@ def get_venv_path() -> Path:
         except Exception:
             pass
 
+    if is_venv_active():
+        return Path(sys.prefix).resolve()
+
+    if project_root is not None:
+        candidate = project_root / DEFAULT_VENV
+        if candidate.exists():
+            return candidate.resolve()
+
+    # Search upwards from cwd for .venv
+    current = Path.cwd()
+    while current != current.parent:
+        candidate = current / DEFAULT_VENV
+        if candidate.is_dir():
+            return candidate.resolve()
+        current = current.parent
+
     return Path(DEFAULT_VENV).resolve()
+
