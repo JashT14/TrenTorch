@@ -250,3 +250,30 @@ def test_all_branch_is_deterministic_under_reversed_listing_order(tmp_path, monk
     converted = [line for line in out.splitlines() if "→" in line]
     assert len(converted) == 2, f"expected two converted modules, got {converted!r}"
     assert converted == sorted(converted), f"modules converted out of order: {converted!r}"
+
+
+def test_convert_external_output_directory_succeeds(tmp_path, monkeypatch):
+    """Verify that specifying an output directory outside project_root succeeds
+    without raising ValueError on relative path calculation."""
+    project_root = tmp_path / "project_root"
+    external_out = tmp_path / "external_exports"
+    src_dir = project_root / "data" / "src" / "01_tensor"
+    src_dir.mkdir(parents=True)
+    (src_dir / "01_tensor.py").write_text("x = 1\n", encoding="utf-8")
+
+    import trentorch.export_sanitizer as sanitizer_module
+
+    monkeypatch.setattr(sanitizer_module, "to_sandbox_code", lambda content: "code")
+
+    cmd = ConvertCommand(CLIConfig.from_project_root(project_root))
+    buf = StringIO()
+    cmd.console = Console(file=buf, width=200, no_color=True)
+
+    result = cmd.run(Namespace(module="01", format="py", out=str(external_out)))
+    assert result == 0
+    assert (external_out / "01_tensor.py").exists()
+    assert (external_out / "01_tensor.py").read_text(encoding="utf-8") == "code"
+    output = buf.getvalue()
+    assert "01_tensor" in output
+    assert "Successfully generated 1 artifact" in output
+

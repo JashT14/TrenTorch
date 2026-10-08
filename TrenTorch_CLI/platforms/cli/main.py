@@ -92,7 +92,10 @@ __version__ = _get_version()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("tren-cli.log"), logging.StreamHandler(sys.stderr)],
+    handlers=[
+        logging.FileHandler("tren-cli.log", encoding="utf-8"),
+        logging.StreamHandler(sys.stderr),
+    ],
 )
 
 logger = logging.getLogger(__name__)

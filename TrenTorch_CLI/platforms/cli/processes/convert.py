@@ -108,8 +108,13 @@ class ConvertCommand(BaseCommand):
                     target_file = out_dir / f"{mod_name}.yaml"
                     target_file.write_text(to_platform_yaml(content, module_name=mod_name), encoding="utf-8")
 
+                try:
+                    display_path = target_file.resolve().relative_to(project_root.resolve())
+                except ValueError:
+                    display_path = target_file
+
                 console.print(
-                    f"  [green]✓[/green] {mod_name} → [dim]{target_file.relative_to(project_root)}[/dim]"
+                    f"  [green]✓[/green] {mod_name} → [dim]{display_path}[/dim]"
                 )
                 success_count += 1
 
