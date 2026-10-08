@@ -52,3 +52,30 @@ def test_tui_command_registration():
     cmd = TUICommand(config)
     assert cmd.name == "tui"
     assert "interactive" in cmd.description.lower()
+
+
+def test_tui_run_benchmarks_button_triggers_baseline(monkeypatch):
+    """Verify that clicking the benchmark action button invokes 'benchmark baseline'."""
+
+    async def _runner():
+        config = CLIConfig.from_project_root()
+        app = TrenTorchApp(config=config, initial_module="01")
+        spawned = []
+
+        def fake_subprocess_worker(cmd, log_widget_id="execution-log", title="Task"):
+            spawned.append((cmd, log_widget_id, title))
+
+        monkeypatch.setattr(app, "_run_subprocess_worker", fake_subprocess_worker)
+
+        async with app.run_test() as pilot:
+            btn = app.query_one("#btn-run-benchmarks")
+            btn.press()
+            await pilot.pause()
+            assert len(spawned) == 1
+            cmd, log_id, title = spawned[0]
+            assert cmd[-2:] == ["benchmark", "baseline"]
+            assert log_id == "benchmark-log"
+            assert title == "Op Benchmarking"
+
+    asyncio.run(_runner())
+

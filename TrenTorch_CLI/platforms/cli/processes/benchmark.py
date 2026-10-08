@@ -38,7 +38,11 @@ class BenchmarkCommand(BaseCommand):
         )
 
         # Baseline benchmark
-        subparsers.add_parser("baseline", help="Run baseline benchmark (quick setup validation)")
+        subparsers.add_parser(
+            "baseline",
+            aliases=["run"],
+            help="Run baseline benchmark (quick setup validation)",
+        )
 
         # Capstone benchmark
         capstone_parser = subparsers.add_parser(
@@ -57,7 +61,7 @@ class BenchmarkCommand(BaseCommand):
             self.console.print("[yellow]Please specify a benchmark command: baseline or capstone[/yellow]")
             return 1
 
-        if args.benchmark_command == "baseline":
+        if args.benchmark_command in ("baseline", "run"):
             return self._run_baseline(args)
         elif args.benchmark_command == "capstone":
             return self._run_capstone(args)

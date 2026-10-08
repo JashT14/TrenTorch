@@ -643,7 +643,7 @@ class TrenTorchApp(App):
                 cmd = [sys.executable, "-m", "platforms.cli.main", "milestone", "run", m_id]
                 self._run_subprocess_worker(cmd, "milestone-log", f"Milestone {m_id} Execution")
         elif btn_id == "btn-run-benchmarks":
-            cmd = [sys.executable, "-m", "platforms.cli.main", "benchmark", "run"]
+            cmd = [sys.executable, "-m", "platforms.cli.main", "benchmark", "baseline"]
             self._run_subprocess_worker(cmd, "benchmark-log", "Op Benchmarking")
         elif btn_id == "btn-run-olympics":
             cmd = [sys.executable, "-m", "platforms.cli.main", "olympics"]
