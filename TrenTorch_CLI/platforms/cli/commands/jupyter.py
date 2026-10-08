@@ -248,7 +248,7 @@ def open_jupyter(config, console, module_name: str, notebook: bool = False, lab:
         return 1
 
 
-def register_jupyter_magic(config, console) -> None:
+def register_jupyter_magic(config, console, target_python: str | Path | None = None) -> None:
     """Scope-load the %tren magic for the 'trentorch' kernel only.
 
     Points that kernel's IPYTHONDIR at a project-local directory
@@ -257,8 +257,9 @@ def register_jupyter_magic(config, console) -> None:
     IPython sessions on the machine are untouched.
     """
     try:
+        py_bin = str(target_python) if target_python else sys.executable
         result = subprocess.run(
-            [sys.executable, "-m", "jupyter", "--data-dir"],
+            [py_bin, "-m", "jupyter", "--data-dir"],
             capture_output=True,
             text=True,
             encoding="utf-8",

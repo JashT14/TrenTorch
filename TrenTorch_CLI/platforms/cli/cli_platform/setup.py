@@ -102,11 +102,28 @@ class SetupCommand(BaseCommand):
             "venv_path": venv_path,
         }
 
+    def _get_target_python(self) -> Path:
+        """Return the Python interpreter for the virtual environment.
+
+        If a virtual environment exists (.venv or venv), targets its
+        interpreter; otherwise falls back to sys.executable.
+        """
+        import os
+
+        venv_path = self.get_existing_venv_path()
+        if venv_path is not None:
+            bin_dir = get_venv_bin_dir(venv_path)
+            py_exe = bin_dir / ("python.exe" if sys.platform == "win32" or os.name == "nt" else "python")
+            if py_exe.exists():
+                return py_exe
+        return Path(sys.executable)
+
     def _check_package_installed(self, package_name: str) -> bool:
         """Check if a package is already installed."""
         try:
+            target_python = str(self._get_target_python())
             result = subprocess.run(
-                [sys.executable, "-m", "pip", "show", package_name],
+                [target_python, "-m", "pip", "show", package_name],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
@@ -119,6 +136,8 @@ class SetupCommand(BaseCommand):
 
     def install_packages(self) -> bool:
         """Install required packages for Tren⚡️Torch development."""
+        target_python = str(self._get_target_python())
+
         # Essential packages for Tren⚡️Torch
         packages = [
             ("numpy", "numpy>=1.21.0"),
@@ -168,7 +187,7 @@ class SetupCommand(BaseCommand):
 
                     try:
                         result = subprocess.run(
-                            [sys.executable, "-m", "pip", "install", "-q", pkg_spec],
+                            [target_python, "-m", "pip", "install", "-q", pkg_spec],
                             capture_output=True,
                             text=True,
                             encoding="utf-8",
@@ -206,7 +225,7 @@ class SetupCommand(BaseCommand):
 
                 try:
                     result = subprocess.run(
-                        [sys.executable, "-m", "pip", "install", "-q", "-e", "."],
+                        [target_python, "-m", "pip", "install", "-q", "-e", "."],
                         cwd=self.config.project_root,
                         capture_output=True,
                         text=True,
@@ -233,7 +252,7 @@ class SetupCommand(BaseCommand):
         try:
             result = subprocess.run(
                 [
-                    sys.executable,
+                    target_python,
                     "-m",
                     "ipykernel",
                     "install",
@@ -253,7 +272,7 @@ class SetupCommand(BaseCommand):
             if result.returncode == 0:
                 self.console.print("[green]✅ Jupyter kernel 'trentorch' registered[/green]")
                 self.console.print("[dim]   Notebooks will use this Python environment[/dim]")
-                register_jupyter_magic(self.config, self.console)
+                register_jupyter_magic(self.config, self.console, target_python=target_python)
             else:
                 self.console.print("[red]❌ Jupyter kernel registration failed[/red]")
                 self.console.print(f"[dim]   {result.stderr.strip()}[/dim]")
@@ -488,10 +507,38 @@ class SetupCommand(BaseCommand):
 
     def check_python_version(self) -> bool:
         """Check if Python version is compatible."""
+        target_python = str(self._get_target_python())
+        try:
+            res = subprocess.run(
+                [target_python, "-c", "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+            )
+            if res.returncode == 0:
+                major, minor = map(int, res.stdout.strip().split(".")[:2])
+                return (major, minor) >= (3, 10)
+        except Exception:
+            pass
         return sys.version_info >= (3, 10)
 
     def check_numpy(self) -> bool:
         """Check if NumPy is installed and working."""
+        target_python = str(self._get_target_python())
+        try:
+            res = subprocess.run(
+                [target_python, "-c", "import numpy as np; arr = np.array([1, 2, 3]); assert len(arr) == 3"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+            )
+            return res.returncode == 0
+        except Exception:
+            pass
         try:
             import numpy as np
 
@@ -503,6 +550,19 @@ class SetupCommand(BaseCommand):
 
     def check_jupyter(self) -> bool:
         """Check if Jupyter is installed."""
+        target_python = str(self._get_target_python())
+        try:
+            res = subprocess.run(
+                [target_python, "-c", "import jupyter, jupyterlab"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+            )
+            return res.returncode == 0
+        except Exception:
+            pass
         try:
             import jupyter  # noqa: F401 -- import-success check
             import jupyterlab  # noqa: F401 -- import-success check
@@ -513,6 +573,19 @@ class SetupCommand(BaseCommand):
 
     def check_jupyter_kernel(self) -> bool:
         """Check if a TrenTorch Jupyter kernel is registered."""
+        target_python = str(self._get_target_python())
+        try:
+            result = subprocess.run(
+                [target_python, "-m", "jupyter", "kernelspec", "list"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+            )
+            return result.returncode == 0 and "trentorch" in result.stdout
+        except Exception:
+            pass
         try:
             result = subprocess.run(
                 [sys.executable, "-m", "jupyter", "kernelspec", "list"],
@@ -528,6 +601,19 @@ class SetupCommand(BaseCommand):
 
     def check_trentorch_package(self) -> bool:
         """Check if the trentorch package is installed."""
+        target_python = str(self._get_target_python())
+        try:
+            res = subprocess.run(
+                [target_python, "-c", "import trentorch"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=10,
+            )
+            return res.returncode == 0
+        except Exception:
+            pass
         try:
             import trentorch  # noqa: F401 -- import-success check
 

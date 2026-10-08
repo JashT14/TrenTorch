@@ -175,3 +175,41 @@ def test_rosetta_venv_creation_uses_argv_list_not_shell_string(tmp_path, monkeyp
         f"the spaced venv path must survive as a single argv element, got: {captured['cmd_args']}"
     )
     assert captured["cmd_args"][:2] == ["arch", "-arm64"]
+
+
+def test_install_packages_targets_created_venv_python(tmp_path, monkeypatch):
+    """install_packages must target the virtual environment's python interpreter,
+    not sys.executable, so packages are installed into .venv."""
+    import sys
+    from platforms.cli.core.virtual_env_manager import get_venv_bin_dir
+
+    venv_dir = tmp_path / ".venv"
+    bin_dir = get_venv_bin_dir(venv_dir)
+    bin_dir.mkdir(parents=True)
+    exe_name = "python.exe" if sys.platform == "win32" else "python"
+    venv_py = bin_dir / exe_name
+    venv_py.write_text("# fake python", encoding="utf-8")
+
+    captured_cmds = []
+
+    def fake_run(cmd_args, **kwargs):
+        captured_cmds.append(cmd_args)
+        return subprocess.CompletedProcess(cmd_args, returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    cmd = SetupCommand(CLIConfig.from_project_root(tmp_path))
+    from io import StringIO
+    from rich.console import Console
+
+    cmd.console = Console(file=StringIO(), width=120, no_color=True)
+    monkeypatch.setattr(cmd, "_check_package_installed", lambda name: False)
+    cmd.install_packages()
+
+    assert any(cmd_args[0] == str(venv_py) for cmd_args in captured_cmds), (
+        f"Expected commands to be run with target venv python ({venv_py}), got: {captured_cmds}"
+    )
+    assert not any(cmd_args[0] == sys.executable for cmd_args in captured_cmds), (
+        f"Commands must not run with sys.executable ({sys.executable})"
+    )
+
