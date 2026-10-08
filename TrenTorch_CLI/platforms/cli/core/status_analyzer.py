@@ -106,9 +106,20 @@ class TrenTorchStatusAnalyzer:
             repo_path: Path to TrenTorch repository. If None, uses current working directory.
         """
         if repo_path is None:
-            repo_path = Path.cwd()
+            try:
+                from .config import CLIConfig
+
+                repo_path = CLIConfig.from_project_root().project_root
+            except Exception:
+                repo_path = Path.cwd()
         self.repo_path = Path(repo_path)
-        self.modules_path = self.repo_path / "data" / "modules" / "source"
+        src_path = self.repo_path / "data" / "src"
+        if src_path.exists():
+            self.modules_path = src_path
+        elif (self.repo_path / "data" / "modules" / "source").exists():
+            self.modules_path = self.repo_path / "data" / "modules" / "source"
+        else:
+            self.modules_path = self.repo_path / "data" / "modules"
         self.modules: dict[str, ModuleStatus] = {}
         self.environment_status = {}
         self.tren_status = {}
