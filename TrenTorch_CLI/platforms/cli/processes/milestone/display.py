@@ -247,7 +247,7 @@ def show_list(config, console, args: Namespace) -> int:
     )
 
     # Check module completion status from the canonical module progress file.
-    completed_module_nums = _load_completed_module_numbers()
+    completed_module_nums = _load_completed_module_numbers(config.project_root)
 
     # Check milestone completion
     milestone_progress = MilestoneSystem(config)._get_milestone_progress_data()
@@ -330,7 +330,7 @@ def show_info(config, console, args: Namespace) -> int:
     milestone = MILESTONE_SCRIPTS[milestone_id]
 
     # Check status
-    completed_module_nums = _load_completed_module_numbers()
+    completed_module_nums = _load_completed_module_numbers(config.project_root)
 
     prereqs_met = all(m in completed_module_nums for m in milestone["required_modules"])
 

@@ -31,9 +31,11 @@ def _module_progress_to_int(module_value):
         return None
 
 
-def _load_completed_module_numbers() -> set:
+def _load_completed_module_numbers(project_root: Path | None = None) -> set:
     """Read completed module numbers from the canonical user_data progress file."""
-    progress_file = Path("user_data") / "progress.json"
+    from ...core.config import get_user_data_dir
+
+    progress_file = get_user_data_dir(project_root) / "progress.json"
     completed = set()
 
     progress_data = read_json_or_warn(progress_file, {}, console=get_console(), label="Your saved progress")
@@ -92,7 +94,7 @@ class MilestoneSystem:
         """Load milestone configuration from YAML files (main and era-specific)."""
         import yaml
 
-        config_path = Path("data") / "milestones" / "milestones.yml"
+        config_path = self.config.project_root / "data" / "milestones" / "milestones.yml"
         milestones = {}
 
         # Try to load main milestones.yml first
@@ -111,9 +113,9 @@ class MilestoneSystem:
 
         # Also try to load era-specific configurations
         era_paths = [
-            Path("data") / "milestones" / "foundation" / "milestone.yml",
-            Path("data") / "milestones" / "revolution" / "milestone.yml",
-            Path("data") / "milestones" / "generation" / "milestone.yml",
+            self.config.project_root / "data" / "milestones" / "foundation" / "milestone.yml",
+            self.config.project_root / "data" / "milestones" / "revolution" / "milestone.yml",
+            self.config.project_root / "data" / "milestones" / "generation" / "milestone.yml",
         ]
 
         for era_path in era_paths:
@@ -262,7 +264,7 @@ class MilestoneSystem:
     def _is_module_completed(self, module_name: str) -> bool:
         """Check if a module has been completed."""
         # Check module progress file
-        progress_file = Path("user_data") / "progress.json"
+        progress_file = self.config.user_data_dir / "progress.json"
         progress_data = read_json_or_warn(
             progress_file, {}, console=self.console, label="Your saved progress"
         )
@@ -272,10 +274,10 @@ class MilestoneSystem:
 
     def _get_milestone_progress_data(self) -> dict:
         """Get or create milestone progress data."""
-        progress_dir = Path("user_data")
+        progress_dir = self.config.user_data_dir
         progress_file = progress_dir / "milestones.json"
 
-        progress_dir.mkdir(exist_ok=True)
+        progress_dir.mkdir(parents=True, exist_ok=True)
 
         default = {
             "completed_milestones": [],
@@ -291,10 +293,10 @@ class MilestoneSystem:
 
     def _save_milestone_progress_data(self, milestone_data: dict) -> None:
         """Save milestone progress data."""
-        progress_dir = Path("user_data")
+        progress_dir = self.config.user_data_dir
         progress_file = progress_dir / "milestones.json"
 
-        progress_dir.mkdir(exist_ok=True)
+        progress_dir.mkdir(parents=True, exist_ok=True)
 
         try:
             atomic_write_json(progress_file, milestone_data)

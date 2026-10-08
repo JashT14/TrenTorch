@@ -187,7 +187,7 @@ class BenchmarkCommand(BaseCommand):
         }
 
         # Save results
-        benchmark_dir = Path("user_data") / "benchmarks"
+        benchmark_dir = self.config.user_data_dir / "benchmarks"
         benchmark_dir.mkdir(parents=True, exist_ok=True)
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = benchmark_dir / f"baseline_{timestamp_str}.json"
@@ -244,7 +244,7 @@ class BenchmarkCommand(BaseCommand):
         # repo (see issue #71), so the import always succeeds even with 0
         # modules solved, and this check always fell through to the "full"
         # benchmark path below regardless of real progress.
-        progress_file = Path("user_data") / "progress.json"
+        progress_file = self.config.user_data_dir / "progress.json"
         completed_modules: set[int] = set()
         progress_data = read_json_or_warn(progress_file, {}, console=console, label="Your saved progress")
         for module_value in progress_data.get("completed_modules", []):
@@ -298,7 +298,7 @@ class BenchmarkCommand(BaseCommand):
         }
 
         # Save results
-        benchmark_dir = Path("user_data") / "benchmarks"
+        benchmark_dir = self.config.user_data_dir / "benchmarks"
         benchmark_dir.mkdir(parents=True, exist_ok=True)
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = benchmark_dir / f"capstone_{timestamp_str}.json"
@@ -348,7 +348,7 @@ class BenchmarkCommand(BaseCommand):
         }
 
         # Save results
-        benchmark_dir = Path("user_data") / "benchmarks"
+        benchmark_dir = self.config.user_data_dir / "benchmarks"
         benchmark_dir.mkdir(parents=True, exist_ok=True)
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = benchmark_dir / f"capstone_simplified_{timestamp_str}.json"

@@ -264,7 +264,7 @@ class MilestoneCommand(BaseCommand):
             )
             return 0
 
-        demo_path = Path("capabilities") / demo_file
+        demo_path = self.config.project_root / "capabilities" / demo_file
         if not demo_path.exists():
             console.print(
                 Panel(
@@ -484,7 +484,7 @@ class MilestoneCommand(BaseCommand):
 
             import sys as _sys
 
-            _sys.path.insert(0, str(Path.cwd()))
+            _sys.path.insert(0, str(self.config.project_root))
 
             export_failures = _validate_required_exports(required_modules)
             if export_failures:
@@ -640,7 +640,7 @@ class MilestoneCommand(BaseCommand):
                 console.print(f"[dim]Milestone {next_id}: {next_milestone['name']}[/dim]")
 
                 # Get completed modules for checking next milestone
-                progress_file = Path("user_data") / "progress.json"
+                progress_file = self.config.user_data_dir / "progress.json"
                 completed_modules = []
                 progress_data = read_json_or_warn(
                     progress_file, {}, console=console, label="Your saved progress"

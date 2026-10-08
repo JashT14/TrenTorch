@@ -45,6 +45,15 @@ def get_home_profile_dir() -> Path:
     return Path.home() / ".trentorch"
 
 
+def get_user_data_dir(project_root: Path | None = None) -> Path:
+    """Return canonical user_data directory anchored to project_root."""
+    if project_root is None:
+        project_root = CLIConfig.from_project_root().project_root
+    user_data = project_root / "user_data"
+    user_data.mkdir(parents=True, exist_ok=True)
+    return user_data
+
+
 @dataclass
 class CLIConfig:
     """Configuration for TrenTorch CLI."""
@@ -104,6 +113,11 @@ class CLIConfig:
             trentorch_dir=project_root / "data" / "trentorch",
             bin_dir=project_root / "bin",
         )
+
+    @property
+    def user_data_dir(self) -> Path:
+        """Return canonical user_data directory."""
+        return self.project_root / "user_data"
 
     def validate(self, venv_path: Path | str = ".venv") -> list[str]:
         """Validate the configuration and return any issues."""

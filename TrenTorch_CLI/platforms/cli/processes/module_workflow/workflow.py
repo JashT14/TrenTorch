@@ -468,7 +468,7 @@ class ModuleWorkflowCommand(BaseCommand):
         """Return the generated package path for a module based on default_exp."""
         from platforms.cli.commands.export_utils import get_export_target
 
-        module_path = Path("data") / "modules" / module_name
+        module_path = self.config.project_root / "data" / "modules" / module_name
         export_target = get_export_target(module_path)
         if export_target != "unknown":
             return f"data/trentorch/{export_target.replace('.', '/')}.py"
@@ -925,7 +925,7 @@ class ModuleWorkflowCommand(BaseCommand):
             # instead -- matching run_inline_unit_tests' own source switch.
             short_name = module_name.split("_", 1)[1] if "_" in module_name else module_name
             target_root = "solutions" if os.environ.get(VERIFY_SOLUTION_ENV) == "1" else "modules"
-            notebook_path = Path("data") / target_root / module_name / f"{short_name}.ipynb"
+            notebook_path = self.config.project_root / "data" / target_root / module_name / f"{short_name}.ipynb"
 
             if not notebook_path.exists():
                 self.console.print(f"[red]❌ Notebook not found: {notebook_path}[/red]")
